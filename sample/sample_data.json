@@ -1,0 +1,24 @@
+{
+  "orders": [
+    {"order_id": "A1001", "amount": 100.0, "channel": "APP"},
+    {"order_id": "A1002", "amount": 100.0, "channel": "APP"},
+    {"order_id": "A1003", "amount": 59.9, "channel": "WEB"},
+    {"order_id": "A1004", "amount": 200.0, "channel": "APP"},
+    {"order_id": "A1005", "amount": 88.0, "channel": "WEB"}
+  ],
+  "payments": [
+    {"pay_id": "P9001", "order_id": "A1001"},
+    {"pay_id": "P9002", "order_id": "A1001"},
+    {"pay_id": "P9003", "order_id": "A1002"},
+    {"pay_id": "P9004", "order_id": "A1004"},
+    {"pay_id": "P9005", "order_id": "A1004"},
+    {"pay_id": "P9006", "order_id": "A1999"},
+    {"pay_id": "P9007", "order_id": "A1003"}
+  ],
+  "refunds": [
+    {"refund_id": "R7001", "order_id": "A1001"},
+    {"refund_id": "R7002", "order_id": "A1004"},
+    {"refund_id": "R7003", "order_id": "A1004"},
+    {"refund_id": "R7004", "order_id": "A1003"}
+  ]
+}

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>结算订单金额溯源</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header>
+  <h1>结算订单金额溯源</h1>
+  <p>定位支付 / 退款关联导致的订单金额虚高：上传三表 JSON，运行只读聚合 SQL，
+     逐组逐单展开参与 SUM 的关联行组合、计入次数与贡献金额。</p>
+</header>
+<main>
+  <section class="card">
+    <h2>1. 上传三表 JSON</h2>
+    <p class="hint">
+      格式：<code>{"orders": [...], "payments": [...], "refunds": [...]}</code>。
+      orders 每行含 <code>order_id</code>（非空）与 <code>amount</code>（非空数值）；
+      payments / refunds 每行含唯一行号 <code>pay_id</code> / <code>refund_id</code> 及 <code>order_id</code>；
+      三表合计不超过 500 行，允许额外标量字段（如 orders.channel）。
+    </p>
+    <textarea id="json-input" rows="10" spellcheck="false"
+      placeholder='{"orders": [{"order_id": "A1", "amount": 100}], "payments": [...], "refunds": [...]}'></textarea>
+    <div class="btn-row">
+      <input type="file" id="file-input" accept=".json,application/json">
+      <button id="btn-sample-data">载入示例数据</button>
+      <button id="btn-upload" class="primary">上传数据</button>
+    </div>
+    <div id="upload-status"></div>
+  </section>
+
+  <section class="card">
+    <h2>2. 输入只读 SQL</h2>
+    <p class="hint">
+      以 orders 为主表，所有表须显式别名；仅支持 INNER/LEFT JOIN ... ON、WHERE、
+      按字段 GROUP BY、一个 SUM(orders.amount)。不支持子查询、窗口函数、DISTINCT、
+      HAVING、ORDER BY、LIMIT 等。
+    </p>
+    <textarea id="sql-input" rows="8" spellcheck="false"
+      placeholder="SELECT o.order_id, SUM(o.amount) AS total_amount ..."></textarea>
+    <div class="btn-row" id="sample-sql-row">
+      <button id="btn-run" class="primary">运行查询</button>
+    </div>
+    <div id="query-error" class="error"></div>
+  </section>
+
+  <section class="card">
+    <h2>3. 结果与溯源</h2>
+    <div id="result"><p class="muted">尚未运行查询。</p></div>
+  </section>
+</main>
+<footer>
+  <p>溯源原理：保持原 SQL 的 FROM/JOIN/WHERE 不变，按「分组字段 + 订单行」细分聚合得到每单计入次数与贡献金额；
+     各订单贡献之和逐组与实际汇总校验一致后才展示，否则报错。</p>
+</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>
